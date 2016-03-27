@@ -24,7 +24,7 @@ tuple<vector<char>, vector<int>, vector<int>> GenerateTestCase(Engine &eng, cons
 	bernoulli_distribution bd(0.1);
 	uniform_int_distribution<int> id1(1, 20);
 	uniform_int_distribution<int> id2(1, 5);
-	uniform_int_distribution<char> id3('a', 'z');
+	uniform_int_distribution<int> id3('a', 'z');
 	tuple<vector<char>, vector<int>, vector<int>> ret;
 	auto &text = get<0>(ret);
 	auto &pos = get<1>(ret);
@@ -87,9 +87,10 @@ int main(int argc, char **argv)
 	// Part I
 	timer_count_position.Start();
 	int *pos_yours_gpu = pos_yours_sync.get_gpu_wo();
+	cudaMemset(pos_yours_gpu, 0, sizeof(int)*n);
 	CountPosition(text_sync.get_gpu_ro(), pos_yours_gpu, n);
-	timer_count_position.Pause();
 	CHECK;
+	timer_count_position.Pause();
 	printf_timer(timer_count_position);
 
 	// Part I check
@@ -103,6 +104,7 @@ int main(int argc, char **argv)
 
 	// Part II
 	int *head_yours_gpu = head_yours_sync.get_gpu_wo();
+	cudaMemset(head_yours_gpu, 0, sizeof(int)*n);
 	int n_head = ExtractHead(pos_yours_sync.get_gpu_ro(), head_yours_gpu, n);
 	CHECK;
 
