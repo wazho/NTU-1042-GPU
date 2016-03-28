@@ -7,8 +7,8 @@
 #include <thrust/device_ptr.h>
 #include <thrust/execution_policy.h>
 
-#define isLeftNode(n)  (n % 2 == 0) ? 1 : 0
-#define isRightNode(n) (n % 2 == 1) ? 1 : 0
+#define isLeftNode(n)  (n % 2 == 0) ? true : false
+#define isRightNode(n) (n % 2 == 1) ? true : false
 #define getParentIndex(si, h, p) si[h + 1] + p / 2
 #define getRightChildIndex(si, h, p) si[h - 1] + (p + 1) * 2
 
@@ -33,7 +33,7 @@ __global__ void buildFenwickTree(int * tree, int * startIndex, int tsize, int h)
     if (idp + 1 < startIndex[h] && isLeftNode((idp - startIndex[h - 1]))) {
         // idc is 'current layer' in fenwick tree.
         int idc = startIndex[h] + idx / 2;
-        tree[idc] = (tree[idp] & tree[idp+1]) ? tree[idp] + tree[idp+1] : 0;
+        tree[idc] = (tree[idp] & tree[idp + 1]) ? tree[idp] + tree[idp + 1] : 0;
     }
 }
 
@@ -45,50 +45,50 @@ __global__ void traverseFenwickTree(int *pos, int *tree, int maxHeight, int *sta
     // Calculate the position.
     if (! tree[idx]) {
         pos[idx] = 0;
-    } else {
-        // Current length of substring. ; Current height of tree. ; Current position in this layer.
-        int length = 0, height = 0, position = idx, currentIndex = idx;
-        // Bottom up.
-        while (1) {
-            if (isLeftNode(position)) {
-                if (position - 1 >= 0 && tree[currentIndex - 1]) {
-                    length += tree[currentIndex], position -= 1, currentIndex -= 1;
-                } else {
-                    break;
-                }
+        return;
+    }
+    // Current length of substring. ; Current height of tree. ; Current position in this layer.
+    int length = 0, height = 0, position = idx, currentIndex = idx;
+    // Bottom up.
+    while (true) {
+        if (isLeftNode(position)) {
+            if (position - 1 >= 0 && tree[currentIndex - 1]) {
+                length += tree[currentIndex], position -= 1, currentIndex -= 1;
             } else {
-                int parentIndex = getParentIndex(startIndex, height, position);
-                if (tree[parentIndex]) {
-                    height += 1, position /= 2, currentIndex = parentIndex;
-                } else {
-                    length += tree[currentIndex], position -= 1, currentIndex -= 1;
-                    break;
-                }
+                break;
+            }
+        } else {
+            int parentIndex = getParentIndex(startIndex, height, position);
+            if (tree[parentIndex]) {
+                height += 1, position /= 2, currentIndex = parentIndex;
+            } else {
+                length += tree[currentIndex], position -= 1, currentIndex -= 1;
+                break;
             }
         }
-        // Top down.
-        while (1) {
-            if (height == 0) {
+    }
+    // Top down.
+    while (true) {
+        if (height == 0) {
+            length += tree[currentIndex];
+            break;
+        } else if (tree[currentIndex]) {
+            if (position - 1 >= 0) {
+                length += tree[currentIndex], position -= 1, currentIndex -= 1;
+            } else {
                 length += tree[currentIndex];
                 break;
-            } else if (tree[currentIndex]) {
-                if (position - 1 >= 0) {
-                    length += tree[currentIndex], position -= 1, currentIndex -= 1;
-                } else {
-                    length += tree[currentIndex];
-                    break;
-                }
+            }
+        } else {
+            int rightIndex = getRightChildIndex(startIndex, height, position);
+            if (tree[rightIndex]) {
+                height -= 1, position = (position + 1) * 2 - 1, currentIndex = rightIndex - 1;
             } else {
-                int rightIndex = getRightChildIndex(startIndex, height, position);
-                if (tree[rightIndex]) {
-                    height -= 1, position = (position + 1) * 2 - 1, currentIndex = rightIndex - 1;
-                } else {
-                    height -= 1, position = (position + 1) * 2, currentIndex = rightIndex;
-                }
+                height -= 1, position = (position + 1) * 2, currentIndex = rightIndex;
             }
         }
-        pos[idx] = length;
     }
+    pos[idx] = length;
 }
 
 void CountPosition(const char *text, int *pos, int text_size) {
@@ -122,25 +122,16 @@ void CountPosition(const char *text, int *pos, int text_size) {
 }
 
 // Problem 2: Find the Heads.
-template<int INT>
-class equal {
-public:
-    __device__ bool operator () (int x) { return x == INT; }
+struct equalToOne {
+    __device__ bool operator() (const int num) { return num == 1; }
 };
 
 int ExtractHead(const int *pos, int *head, int text_size) {
-    int nhead;
-    thrust::device_ptr<const int> pos_d(pos);
-    thrust::device_ptr<int> head_d(head);
-    // copy_if.
-    auto head_end = thrust::copy_if(
-        thrust::counting_iterator<int>(0),
-        thrust::counting_iterator<int>(text_size),
-        pos_d,
-        head_d,
-        equal<1>()
-    );
-    nhead = head_end - head_d;
+    thrust::device_ptr<const int> posPtr(pos);
+    thrust::device_ptr<int> headPtr(head);
+    thrust::counting_iterator<int> firstIter(0), endIter(text_size);
+    auto headEndPtr = thrust::copy_if(firstIter, endIter, posPtr, headPtr, equalToOne());
+    int nhead = headEndPtr - headPtr;
     return nhead;
 }
 
