@@ -133,11 +133,12 @@ __device__ void drawLine(uint8_t *yuv, int x0, int y0, int x1, int y1, int thick
     for (int x = x0, y = y0; x <= x1; x++) {
         // Draw the point if it is in bound.
         if (! ((steep && (y >= W || x >= H)) || (! steep && (x >= W || y >= H)))) {
-            int pos = (steep) ? toCanvasPos(y, x, W, H) : toCanvasPos(x, y, W, H);
+            int pos  = (steep) ? toCanvasPos(y, x, W, H) : toCanvasPos(x, y, W, H);
+            int pos2 = (steep) ? toCanvasPos(y/2, x/2, W/2, H/2) : toCanvasPos(x/2, y/2, W/2, H/2);
             // Set the YUV color.
-            yuv[pos]       = RGB2Y(83, 53, 10);
-            // yuv[pos/4+W*H] = RGB2U(83, 53, 10);
-            // yuv[pos/4+W*H*5/4] = RGB2V(83, 53, 10);
+            yuv[pos]          = RGB2Y(58, 95, 11);
+            yuv[pos2+W*H]     = RGB2U(58, 95, 11);
+            yuv[pos2+W*H/4*5] = RGB2V(58, 95, 11);//(83, 53, 10);
         }
         // Add the error rate.
         error -= deltaY;
