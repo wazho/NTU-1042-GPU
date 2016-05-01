@@ -6,7 +6,8 @@
 
 enum color { RR = 0, GG = 1, BB = 2 };
 
-// It meas [min, max).
+#define SAMPLE_POINT_COUNT 3
+#define swap(x, y, Type) do { Type tmp = x; x = y; y = tmp; } while (0)
 #define isInRange(value, min, max) (min <= value && value < max)
 
 void PoissonImageCloning(const float *background, const float *target, const float *mask, float *output, const int wb, const int hb, const int wt, const int ht, const int oy, const int ox);
@@ -32,9 +33,9 @@ void PoissonImageCloning(const float *background, const float *target, const flo
 	CalculateFixed <<<gdim, bdim>>> (background, target, mask, fixed, wb, hb, wt, ht, oy, ox);
 	cudaMemcpy(buf1, target, sizeof(float) * 3 * wt * ht, cudaMemcpyDeviceToDevice);
 
-	for (int i = 0; i < 10000; i++) {
+	for (int i = 0; i < 6000; i++) {
 		JacobiMethod <<<gdim, bdim>>> (fixed, mask, buf1, buf2, wt, ht);
-		JacobiMethod <<<gdim, bdim>>> (fixed, mask, buf2, buf1, wt, ht);
+		swap(buf1, buf2, float *);
 	}
 
 	// Based background.
@@ -60,12 +61,12 @@ __global__ void CalculateFixed(const float *background, const float *target, con
 		return;
 
 	float result[3];
-	result[RR] = 4 * target[curT * 3 + RR];
-	result[GG] = 4 * target[curT * 3 + GG];
-	result[BB] = 4 * target[curT * 3 + BB];
+	result[RR] = SAMPLE_POINT_COUNT * target[curT * 3 + RR];
+	result[GG] = SAMPLE_POINT_COUNT * target[curT * 3 + GG];
+	result[BB] = SAMPLE_POINT_COUNT * target[curT * 3 + BB];
 
-	const int dir[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-	for (int i = 0; i < 4; i++) {
+	const int dir[SAMPLE_POINT_COUNT][2] = {{0, 2}, {-1, -1}, {1, -1}};
+	for (int i = 0; i < SAMPLE_POINT_COUNT; i++) {
 		const int nearX = xt + dir[i][0];
 		const int nearY = yt + dir[i][1];
 		const int curTN = wt * nearY + nearX;
@@ -100,8 +101,8 @@ __global__ void JacobiMethod(const float *fixed, const float *mask, const float 
 	result[GG] = fixed[curT * 3 + GG];
 	result[BB] = fixed[curT * 3 + BB];
 
-	const int dir[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-	for (int i = 0; i < 4; i++) {
+	const int dir[SAMPLE_POINT_COUNT][2] = {{0, 2}, {-1, -1}, {1, -1}};
+	for (int i = 0; i < SAMPLE_POINT_COUNT; i++) {
 		const int nearX = xt + dir[i][0];
 		const int nearY = yt + dir[i][1];
 		const int curTN = wt * nearY + nearX;
@@ -112,9 +113,9 @@ __global__ void JacobiMethod(const float *fixed, const float *mask, const float 
 		}
 	}
 
-	output[curT * 3 + RR] = result[RR] / 4;
-	output[curT * 3 + GG] = result[GG] / 4;
-	output[curT * 3 + BB] = result[BB] / 4;
+	output[curT * 3 + RR] = result[RR] / SAMPLE_POINT_COUNT;
+	output[curT * 3 + GG] = result[GG] / SAMPLE_POINT_COUNT;
+	output[curT * 3 + BB] = result[BB] / SAMPLE_POINT_COUNT;
 }
 
 __global__ void ImageBlending(const float *background, const float *target, const float *mask, float *output, const int wb, const int hb, const int wt, const int ht, const int oy, const int ox) {

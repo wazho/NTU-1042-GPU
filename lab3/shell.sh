@@ -8,6 +8,9 @@ mkdir -p ./debug
 
 # Compile the CUDA program.
 nvcc -c --std=c++11 -arch=sm_30 lab3.cu -o ./debug/lab3.o
+# nvcc -c --std=c++11 -arch=sm_30 lab3_accelerate_a.cu -o ./debug/lab3.o
+# nvcc -c --std=c++11 -arch=sm_30 lab3_accelerate_b.cu -o ./debug/lab3.o
+# nvcc -c --std=c++11 -arch=sm_30 lab3_accelerate_c.cu -o ./debug/lab3.o
 nvcc -c --std=c++11 -arch=sm_30 pgm.cpp -o ./debug/pgm.o
 nvcc --std=c++11 -arch=sm_30 ./debug/lab3.o ./debug/pgm.o main.cu -o ./debug/lab3
 
