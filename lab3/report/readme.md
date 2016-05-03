@@ -1,14 +1,36 @@
-## Interesting results
+## Interesting results I
 
-->![funny background](funny_background.png =140x)<-
+->![funny background 1](../resources/funny/1/img_background.ppm =140x)<-
 
-->![funny target](funny_target.png =200x) ![funny mask](funny_mask.png =200x)<-
+->![funny target 1](../resources/funny/1/img_target.ppm =200x) ![funny mask 1](../resources/funny/1/img_mask.pgm =200x)<-
 
-->Background, target and the mask<-
+->image blending ...<-
 
-->![funny background](../results/funny.png =220x)<-
+->![funny result 1](../results/funny_1.png =240x)<-
 
-->Image blending<-
+<div style="page-break-after: always;"></div>
+
+## Interesting results II
+
+->![funny background 2](../resources/funny/2/img_background.ppm =200x)<-
+
+->![funny target 2](../resources/funny/2/img_target.ppm =200x) ![funny mask 2](../resources/funny/2/img_mask.pgm =200x)<-
+
+->image blending ...<-
+
+->![funny result 2](../results/funny_2.png =260x)<-
+
+<div style="page-break-after: always;"></div>
+
+## Interesting results III
+
+->![funny background 3](../resources/funny/3/img_background.ppm =150x)<-
+
+->![funny target 3](../resources/funny/3/img_target.ppm =180x) ![funny mask 3](../resources/funny/3/img_mask.pgm =180x)<-
+
+->image blending ...<-
+
+->![funny result 3](../results/funny_3.png =200x)<-
 
 <div style="page-break-after: always;"></div>
 
@@ -120,9 +142,9 @@ Average time: *0.2896585 seconds*
 
 #### Try less reference points
 
-->![new_upsampling](new_upsampling.png =570x)<-
+->![new_references](new_references.png =570x)<-
 
-->Fig1. Using the new upsampling points like a triangle<-
+->Fig1. Using the new reference points like a triangle<-
 
 #### Result images
 
