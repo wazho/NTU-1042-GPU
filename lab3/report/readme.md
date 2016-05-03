@@ -121,6 +121,8 @@ Average time: *0.6281603 seconds*
 
 Dynamic omega by: `float w = 1.0 + (ITERATION_TIMES - times) / ITERATION_TIMES;`
 
+Finally, I got a better result below. From 20,000 iterations to becomes **2,200 iterations** to converge, and the images are very similar via watching by eyes.
+
 ```
  1st time: 139023us
  2nd time: 140612us
