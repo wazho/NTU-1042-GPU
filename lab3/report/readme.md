@@ -74,11 +74,11 @@ Average time: *1.1140926 seconds*
 
 <div style="page-break-after: always;"></div>
 
-### Using SOR method
+### Using SOR method (static omega)
 
 * Code can be found in `lab3_accelerate_b.cu` file.
 
-I found the best **ω** is near *1.35* in this case. If **ω** is over *1.35* too much, the converge will fail and get the wrong image blending. If I decreased **ω** value until close *1*, the converge speed will be slower than before.
+I found the best **ω** is near *1.35* in this case when keep the iterations are 20,000 times. If **ω** is over *1.35* too much, the converge will fail and get the wrong image blending. If I decreased **ω** value until close *1*, the converge speed will be slower than before.
 
 Finally, I got a better result below. From 20,000 iterations to becomes **10,000 iterations** to converge, and the images are very similar via watching by eyes.
 
@@ -112,6 +112,29 @@ Average time: *0.6281603 seconds*
 ->![b_3](../results/basic_20000_iters.png =220x) ![s_3](../results/sor_10000_iters.png =220x)<-
 
 ->Fig7. *Jocobi 20,000 iters* and *SOR 10,000 iters*<-
+
+<div style="page-break-after: always;"></div>
+
+### Using SOR method (dynamic omega)
+
+* Code can be found in `lab3_accelerate_b.cu` file too.
+
+Dynamic omega by: `float w = 1.0 + (ITERATION_TIMES - times) / ITERATION_TIMES;`
+
+```
+ 1st time: 139023us
+ 2nd time: 140612us
+ 3rd time: 139122us
+ 4th time: 139075us
+ 5th time: 139030us
+ 6th time: 139674us
+ 7th time: 139671us
+ 8th time: 139000us
+ 9th time: 139030us
+10th time: 139611us
+```
+
+Average time: *0.1393848 seconds*
 
 <div style="page-break-after: always;"></div>
 
@@ -164,7 +187,7 @@ Average time: *0.2896585 seconds*
 
 ### Summary
 
-We can see the figure below, the method of low resolution is ***faster than*** SOR method. Why I said "faster" instead of "better"? Because decrease the resolution means losing the information of image. Maybe is difficult to aware from human, but there's much difference to computers. It just like the **dithering** (Computer Graphics), the target is that making people to satisfy when the compressing image.
+We can see the figure below, the method of low resolution is ***faster than*** SOR method (static omega). Why I said "faster" instead of "better"? Because decrease the resolution means losing the information of image. Maybe is difficult to aware from human, but there's much difference to computers. It just like the **dithering** (Computer Graphics), the target is that making people to satisfy when the compressing image.
 
 ->![algorithms](algorithms.png)<-
 
